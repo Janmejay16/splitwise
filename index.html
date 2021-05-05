@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html ng-app="MsgApp">
+<head>
+    <meta chrset="UTF 8">
+    <title>Splitwise</title>
+    <script src="./angular.min.js"></script>
+    <script src="./app.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/pnh" href="./images/logo.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/6376f55227.js" crossorigin="anonymous"></script>
+</head>
+<body ng-controller="MsgController">
+    <div class="imagebg"></div>
+    <div class="wrapper"><div class="wave"></div></div>
+    <div class="main">
+        <!-- <div id="slant"></div> -->
+        <div ng-hide="notLoggedIn" id="navbar">
+            <div class="logo"><img src="./images/splitwise.png" ></div>
+            <div class="username">
+                Hey, <span>{{currentUser.username}}</span>
+            </div>
+            <div ng-click="viewtrans()" class="transaction">Transactions</div>
+            <div class="addtransaction" ng-click="addTransSection()">Add Transaction</div>
+            <div ng-click="logout()" class="logout">Logout</div>
+        </div>
+        <section style="background: transparent;" class="loginsignup" ng-show="notLoggedIn">
+            <div id="comp" ng-show="signin">
+                <div class="image">
+                    <img src="./images/login.png" >
+                </div>
+                <div class="input">
+                    <h1>Login</h1>
+                    <input placeholder="Enter your Username : " ng-model="username">
+                    <input type="password" placeholder="Enter your Password : " ng-model="password">
+                    <button ng-click="login()">Sign In</button>
+                    <p>Not a member yet?<span ng-click="changeToSignUp()">Sign Up Here!</span></p>
+                </div>
+            </div>
+
+            <div id="comp" ng-show="signup">
+                <div class="image">
+                    <img src="./images/register.png" >
+                </div>
+                <div class="input">
+                    <h1>Register</h1>
+                    <input placeholder="Enter your Username : " ng-model="username">
+                    <input type="password" placeholder="Enter your Password : " ng-model="password">
+                    <button ng-click="register()">Sign Up</button>
+                    <p>Already a member?<span ng-click="changeToSignIn()">Sign In Here!</span></p>
+                </div>
+            </div>
+        </section>       
+
+        <section style="margin-top: 12vh;" ng-hide="notLoggedIn" class="accountsection">
+            <h1>Accounts</h1>
+            <button ng-click="fetchAccounts()">Fetch Accounts</button>
+            <button ng-click="hideAcc()">Hide Accounts</button>
+            <div ng-show="viewAcc">
+                <div id="content">
+                    <div class="table">
+                        <div class="row header">
+                            <p class="id">Id</p>
+                            <p class="date">Transaction Date</p>
+                            <p class="id">Amount</p>
+                            <p class="users">Lender</p>
+                            <p class="users">Receiver</p>
+                        </div>
+                        <div class="row" ng-repeat="account in allaccounts">
+                            <p class="id">{{account.id}}</p>
+                            <p class="date">{{account.transaction_date | dates}}</p>
+                            <p class="id">{{account.amount}}</p>
+                            <p class="users">{{account.lender}}</p>
+                            <p class="users">{{account.receiver}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section ng-show="admin" className="usersection">
+            <h1>Users</h1>
+            <button ng-click="fetchUsers()">Fetch Users</button>
+            <button ng-click="hideUsers()">Hide Users</button>
+            <div ng-show="viewUsers">
+                <p id="showpwd" ng-click="seepasswordfunc()">Show Passwords</p>
+                <div id="content">
+                    <div class="table">
+                        <div class="row header">
+                            <p class="id">Id</p>
+                            <p class="username">Username</p>
+                            <p class="password">Password</p>
+                        </div>
+                        <div class="row" ng-repeat="user in allusers">
+                            <p class="id">{{user.id}}</p>
+                            <p class="username">{{user.username}}</p>
+                            <p class="password">{{seepassword ? user.password : (user.password | passwordFilter)}}</p>
+                        </div>
+                    </div>
+            </div>
+        </section>
+
+        <section ng-show="admin" class="transactionsection">
+            <h1>Transactions</h1>
+            <button ng-click="fetchTransactions()">Fetch Transactions</button>
+            <button ng-click="hideTran()">Hide Transactions</button>
+            <div ng-show="viewTran">
+                <div id="content">
+                    <div class="table">
+                        <div class="row header">
+                            <p class="id">Id</p>
+                            <p class="date">Transaction Date</p>
+                            <p class="id">User Id</p>
+                            <p class="amount">Amount</p>
+                            <p class="users">Users</p>
+                        </div>
+                        <div class="row" ng-repeat="transaction in alltransactions">
+                            <p class="id">{{transaction.id}}</p>
+                            <p class="date">{{transaction.transaction_date | dates}}</p>
+                            <p class="id">{{transaction.user_id}}</p>
+                            <p class="amount">{{transaction.amount}}</p>
+                            <p class="users">{{transaction.users}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section ng-show="userTrans" class="transactionsection">
+            <h1>Transactions</h1>
+            <button ng-click="showTrans()">Display Transactions</button>
+            <button ng-click="hideUserTrans()">Hide Transactions</button>
+            <div ng-show="viewTran">
+                <div id="content">
+                    <div class="table">
+                        <div class="row header">
+                            <p class="id">Id</p>
+                            <p class="date">Transaction Date</p>
+                            <p class="amount">Amount</p>
+                            <p class="users">Users</p>
+                        </div>
+                        <div class="row" ng-repeat="transaction in individualTrans">
+                            <p class="id">{{transaction.id}}</p>
+                            <p class="date">{{transaction.transaction_date | dates}}</p>
+                            <p class="amount">{{transaction.amount}}</p>
+                            <p class="users">{{transaction.users}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section  ng-show="addTrans" class="addtrans">
+            <h1>Add New Transaction</h1>
+            <div class="date">
+                <input type="number" ng-model="year" min="2000" max="2021" placeholder="year" />
+                <input type="number" ng-model="month" min="1" max="12" placeholder="month" />
+                <input type="number" ng-model="date" min="1" max="31" placeholder="date" />
+            </div>
+            <div class="newTrans">
+                <input ng-model="users" placeholder="Username : " />
+                <input ng-model="amount" placeholder="Amount Spent : " />
+                <button ng-click="addEntry()">Add User</button>
+            </div>
+            <div class="transactioncomp">
+                <div class="trtable">
+                    <div class="tr">
+                        <p class="fifty">User</p>
+                        <p class="fifty">Amount</p>
+                    </div>
+                    <div class="td newTranUser" ng-repeat="transaction in newTransactions">
+                        <p class="fifty">{{transaction.user}}</p>
+                        <p class="fifty">{{transaction.amount}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button ng-click="clearAddTrans()">Reset</button>
+                <button style="background: white;color: black;" ng-click="addtransaction()">Add Transaction</button>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
